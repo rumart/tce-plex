@@ -1,6 +1,6 @@
 This repository contains the files used for getting Plex Media server up and running on a Tanzu Community Edition (TCE) cluster
 
-For more information about the project please visit my blog
+For more information about the project please visit my [blog post here](https://rudimartinsen.com/2022/01/28/tce-plex)
 
 A brief explanation of the files
 
