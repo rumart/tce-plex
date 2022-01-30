@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex
+  namespace: plex
+  labels:
+    app: plexserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plexserver
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate 
+  template:
+    metadata:
+      labels:
+        app: plexserver
+      annotations:
+        backup.velero.io/backup-volumes: plex-config
+    spec:
+      volumes:
+      - name: plex-config
+        persistentVolumeClaim:
+          claimName: pvc-plex-config
+      - name: plex-data
+        persistentVolumeClaim:
+          claimName: pvc-plex-data
+      containers:
+      - name: plex
+        image: plexinc/pms-docker
+        imagePullPolicy: Always
+        resources:
+          requests:
+            cpu: 1
+            memory: 512Mi
+        ports:
+        - containerPort: 32400 #PMS
+          name: plex
+        - containerPort: 32400
+          name: plex-udp
+          protocol: UDP
+        - containerPort: 32469 #Plex DLNA
+          name: plex-dlna
+        - containerPort: 5353
+          name: plex-discovery
+          protocol: UDP
+        - containerPort: 1900 #Plex DLNA
+          name: plex-dlna-udp
+          protocol: UDP
+        env:
+        - name: UID
+          value: "\x31\x30\x30\x33" #Corresponds to user id on NFS server (ascii)
+        - name: GID
+          value: "\x31\x30\x30\x33" #Corresponds to group id on NFS server
+        - name: PLEX_CLAIM
+          value: claim-DmAaUQKyrhu7USsypges
+        - name: ADVERTISE_IP
+          value: https://plex.tce.rhmlab.local
+        - name: HOSTNAME
+          value: plex.tce.rhmlab.local
+        - name: ALLOWED_NETWORKS
+          value: 192.168.0.0/16,100.96.0.0/11
+        - name: TZ
+          value: Europe/Oslo
+        volumeMounts:
+        - mountPath: /config
+          name: plex-config
+        - mountPath: /data
+          name: plex-data

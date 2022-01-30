@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plex-exporter
+  namespace: plex
+data:
+  config.yaml: |
+    address: ":9594"
+    logLevel: "info"
+    logFormat: "text"
+    autoDiscover: false
+    token: "XiMoLAEqPgk2U8J2MK5E"
+    servers:
+    - baseUrl: http://plex-tcp:32400
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex-exporter
+  namespace: plex
+  labels:
+    app: plex-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: plex-exporter
+  template:
+    metadata:
+      labels:
+        app: plex-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/scheme: "http"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "9594"
+    spec:
+      containers:
+        - name: plex-exporter
+          image: granra/plex_exporter:v0.2.3
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9594
+              name: metrics
+          volumeMounts:
+            - name: config
+              mountPath: /etc/plex_exporter/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: plex-exporter
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: plex-exporter
+  namespace: plex
+spec:
+  selector:
+    app: plex-exporter
+  ports:                      
+  - port: 9594
+    name: metrics
+    protocol: TCP
+  type: LoadBalancer

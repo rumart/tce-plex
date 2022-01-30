@@ -1,0 +1,15 @@
+ingress:
+  enabled: true
+  virtual_host_fqdn: prometheus.tce.rhmlab.local
+  prometheus_prefix: "/"
+  alertmanager_prefix: "/alertmanager/"
+  prometheusServicePort: 80
+  alertmanagerServicePort: 80
+prometheus:
+  pvc:
+    storage: 5Gi
+    storageClassName: sc-vmdk
+alertmanager:
+  pvc:
+    storage: 2Gi
+    storageClassName: sc-vmdk

@@ -1,0 +1,30 @@
+namespace: velero
+credential:
+  useDefaultSecret: true
+  name: cloud-credentials
+  secretContents:
+    cloud: |
+      [default]
+      aws_access_key_id=<access-key>
+      aws_secret_access_key=<secret-key>
+backupStorageLocation:
+  name: <name>
+  spec:
+    provider: aws
+    default: true
+    objectStorage:
+      bucket: <bucket>
+    configAWS:
+      region: minio
+      s3ForcePathStyle: "true"
+      publicUrl: http://x.x.x.x:9000
+      s3Url: http://x.x.x.x:9000
+volumeSnapshotLocation:
+  name: <name>
+  snapshotEnabled: "false"
+  spec:
+    configAWS:
+      region: minio
+restic:
+  create: "true"
+  defaultVolumesToRestic: "false"

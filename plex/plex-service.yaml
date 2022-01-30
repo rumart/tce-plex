@@ -1,0 +1,43 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: plex-udp              # < name of the service
+  namespace: plex
+  annotations:
+    metallb.universe.tf/allow-shared-ip: plexserver # < annotation name to combine the Service IP, make sure it's same name as in the service UDP yaml
+spec:
+  selector:
+    app: plexserver           # < reference to the deployment (connects the service with the deployment)
+  ports:
+  - port: 1900                # < port to open on the outside on the server
+    targetPort: 1900          # < targetport. port on the pod to passthrough
+    name: dlna-udp            # < reference name for the port in the deployment yaml
+    protocol: UDP
+  - port: 5353
+    targetPort: 5353
+    name: discovery-udp
+    protocol: UDP
+  type: LoadBalancer
+  loadBalancerIP: 192.168.151.62
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: plex-tcp              # < name of the service
+  namespace: plex
+  annotations:
+    metallb.universe.tf/allow-shared-ip: plexserver  # < annotation name to combine the Service IP, make sure it's same name as in the service UDP yaml
+spec:
+  selector:
+    app: plexserver           # < reference to the deployment (connects the service with the deployment)
+  ports:                      
+  - port: 32400               # < port to open on the outside on the server
+    targetPort: 32400         # < targetport. port on the pod to passthrough
+    name: pms-web             # < reference name for the port in the deployment yaml
+    protocol: TCP
+  - port: 32469
+    targetPort: 32469
+    name: dlna-tcp
+    protocol: TCP
+  type: LoadBalancer
+  loadBalancerIP: 192.168.151.62

@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plex
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: nfs-plex-data
+spec:
+  storageClassName: "pvc-plex-data-nfs"
+  capacity:
+    storage: 20Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /nfs/plex/tce/data
+    server: x.x.x.x
+    readOnly: false
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-plex-config
+  namespace: plex
+spec:
+  storageClassName: sc-vmdk
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-plex-data
+  namespace: plex
+spec:
+  storageClassName: pvc-plex-data-nfs
+  volumeName: nfs-plex-data
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 20Gi

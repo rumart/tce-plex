@@ -1,0 +1,16 @@
+ingress:
+  enabled: true
+  virtual_host_fqdn: grafana.tce.rhmlab.local
+grafana:
+  pvc:
+    storageClassName: sc-vmdk
+    storage: 2Gi
+config:
+  datasource_yaml: |-
+      apiVersion: 1
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          url: prometheus-server.prometheus.svc.cluster.local
+          access: proxy
+          isDefault: true
